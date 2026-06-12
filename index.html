@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0e1014">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CERUTUMURAH Order Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="pinGate" class="pin-gate">
+  <form id="pinForm" class="pin-card">
+    <div class="brand-mark">CM</div>
+    <span class="section-label">AKSES TERLINDUNGI</span>
+    <h2>Masukkan PIN</h2>
+    <p>Gunakan PIN untuk membuka Order Manager.</p>
+    <label>PIN
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="Masukkan PIN" required>
+    </label>
+    <button id="pinSubmitBtn" type="submit" class="primary">Buka Aplikasi</button>
+    <div id="pinError" class="pin-error" role="alert"></div>
+  </form>
+</div>
+<div id="appShell" class="app hidden">
+  <header class="topbar">
+    <div class="app-identity">
+      <div class="brand-mark">CM</div>
+      <div>
+      <div class="brand">CERUTUMURAH</div>
+      <h1>Order Manager</h1>
+      <p>Kelola penjualan dalam satu aplikasi.</p>
+      </div>
+    </div>
+    <nav class="top-actions" aria-label="Navigasi utama">
+      <button id="tabOrderBtn" class="primary">🛒 Order</button>
+      <button id="tabMarketplaceBtn" class="ghost">Order Marketplace</button>
+      <button id="tabDashboardBtn" class="primary">Dashboard</button>
+      <button id="tabDatabaseBtn" class="ghost">Database</button>
+      <button id="tabMasterBtn" class="ghost">📦 Master Produk</button>
+      <button id="logoutBtn" class="ghost danger">Keluar</button>
+    </nav>
+  </header>
+
+  <main id="dashboardView">
+  <section class="card dashboard-card">
+    <div class="card-title dashboard-heading"><div><span class="section-label">RINGKASAN PENJUALAN</span><h2>Performa Hari Ini</h2><p id="dashboardPeriod">Data terbaru dari Google Sheets.</p></div><button id="refreshDashboardBtn" class="ghost">Refresh Dashboard</button></div>
+    <div class="sales-summary">
+      <article class="sales-stat order-today"><span>Order Hari Ini</span><strong id="statOrdersToday">0</strong><small>Pesanan masuk hari ini</small></article>
+      <article class="sales-stat revenue-today"><span>Omzet Hari Ini</span><strong id="statRevenueToday">Rp0</strong><small>Total penjualan hari ini</small></article>
+      <article class="sales-stat revenue-month"><span>Omzet Bulan Ini</span><strong id="statRevenueMonth">Rp0</strong><small id="revenueMonthLabel">Total penjualan bulan berjalan</small></article>
+      <article class="sales-stat shipping-month"><span>Ongkir Bulan Ini</span><strong id="statShippingMonth">Rp0</strong><small id="shippingMonthLabel">Total ongkir bulan berjalan</small></article>
+    </div>
+    <div id="apiStatus" class="api-status">Menyiapkan koneksi...</div>
+  </section>
+  <section class="dashboard secondary-stats">
+    <div class="stat"><span>Total Produk</span><strong id="statProducts">0</strong></div>
+    <div class="stat"><span>Produk Aktif</span><strong id="statActive">0</strong></div>
+    <div class="stat"><span>Total Stok</span><strong id="statStock">0</strong></div>
+    <div class="stat warning"><span>Stok Menipis</span><strong id="statLowStock">0</strong></div>
+    <div class="stat asset-stat"><span>Nilai Total Aset Produk</span><strong id="statProductAssets">Rp0</strong><small>Stok × harga jual</small></div>
+    <div class="stat"><span>Omzet Total</span><strong id="statRevenue">Rp0</strong></div>
+  </section>
+  </main>
+
+  <main id="orderView" class="grid hidden">
+    <section class="card">
+      <div class="card-title">
+        <div><h2>Produk</h2><p>Cari produk dari database lokal browser.</p></div>
+        <span id="productCount">0 produk</span>
+      </div>
+      <input id="searchInput" class="search" type="text" placeholder="Cari nama / SKU / kategori..." autocomplete="off">
+      <div id="productList" class="product-list"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">
+        <div><h2>Input Order</h2><p>Input order, copy WA, simpan, dan print label.</p></div>
+        <button id="clearBtn" class="ghost danger">Reset</button>
+      </div>
+
+      <div class="field-grid">
+        <label>Nama Penerima<input id="receiverName" type="text" placeholder="Nama customer"></label>
+        <label>No. WA Penerima<input id="receiverPhone" type="text" placeholder="08xxxx"></label>
+        <label class="full">Alamat Penerima<textarea id="receiverAddress" rows="3" placeholder="Alamat lengkap"></textarea></label>
+      </div>
+
+      <div class="field-grid">
+        <label class="full">Logo URL<input id="logoUrl" type="text" value="assets/che.png" placeholder="assets/logo.png atau https://..."></label>
+        <label>Nama Pengirim<input id="senderName" type="text" value="CERUTUMURAH"></label>
+        <label>No. HP Pengirim<input id="senderPhone" type="text" value="0816283356"></label>
+        <label>Ekspedisi
+          <select id="courier">
+            <option value="">Pilih ekspedisi</option>
+            <option>JNE REG</option><option>JNE YES</option><option>J&T</option>
+            <option>SiCepat</option><option>Anteraja</option><option>POS</option><option>WAHANA</option><option>GOSEND</option>
+            <option>GRABSEND</option><option>COD</option><option>AMBIL DI TOKO</option>
+          </select>
+        </label>
+        <label>Tagline Label<input id="tagline" type="text" value="whatever price or origin, a good cigar is a good cigar!"></label>
+        <label>Footer Label<input id="footerNote" type="text" placeholder="Kosongkan untuk CERUTUMURAH.COM"></label>
+      </div>
+
+      <div class="cart-head"><h3>Keranjang</h3><span>Klik produk di kiri untuk tambah item.</span></div>
+      <div id="cartList" class="cart-list empty">Belum ada produk.</div>
+
+      <div class="summary">
+        <label>Ongkir<input id="shipping" type="number" min="0" step="1000" value="0"></label>
+        <label>Diskon<input id="discount" type="number" min="0" step="1000" value="0"></label>
+        <label>Subtotal<input id="subtotal" type="text" readonly></label>
+        <label>Total<input id="grandTotal" type="text" readonly></label>
+      </div>
+
+      <div class="field-grid">
+        <label class="full">Catatan Order<textarea id="notes" rows="2" placeholder="Opsional"></textarea></label>
+        <label class="full">Nomor Resi<input id="trackingNumber" type="text" placeholder="Isi nomor resi untuk Copy WA Resi"></label>
+      </div>
+
+      <div class="main-action">
+        <button id="copyOrderBtn" class="primary">📋 Copy Pesanan</button>
+        <button id="saveOrderBtn" class="secondary">💾 Simpan Order</button>
+        <button id="printCurrentBtn" class="primary">🖨 Print Label</button>
+        <button id="exportOrdersBtn" class="secondary">📤 Export Order Excel</button>
+      </div>
+
+      <div class="quick-tools">
+        <h3>Copy Status Pesanan WA</h3>
+        <div class="btn-grid">
+          <button id="copyPaymentReceivedBtn" class="secondary">Pembayaran Diterima</button>
+          <button id="copyTrackingBtn" class="secondary">Bagikan Resi</button>
+        </div>
+      </div>
+
+      <div class="quick-tools">
+        <h3>Copy Rekening Terpisah</h3>
+        <div class="btn-grid">
+          <button id="copyBriBtn">🏦 BRI</button>
+          <button id="copyMandiriBtn">🏦 Mandiri</button>
+          <button id="copyBcaBtn">🏦 BCA</button>
+          <button id="copyAllBankBtn">🏦 Semua</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">
+        <div><h2>Preview & Riwayat</h2><p>Preview chat dan print order yang diceklis.</p></div>
+        <span id="copyStatus"></span>
+      </div>
+      <textarea id="messagePreview" rows="8"></textarea>
+      <div class="label-toolbar"><h3>Preview Label 4 x 6 inch</h3><span>100 x 150 mm</span></div>
+      <div class="label-preview-wrap"><div id="printLabel" class="print-label"></div></div>
+      <div class="history-head"><h3>Order Tersimpan</h3><button id="refreshHistoryBtn" class="ghost">Refresh</button></div>
+      <div class="history-filter"><input id="orderSearch" type="text" placeholder="Cari nama/order/no hp..."><button id="searchOrdersBtn" class="ghost">Cari</button></div>
+      <div class="print-selected-row order-actions"><button id="printSelectedBtn" class="primary">🖨 Print Diceklis</button><button id="exportSelectedOrdersBtn" class="secondary">📤 Export Diceklis</button><button id="deleteSelectedOrdersBtn" class="danger ghost">🗑 Hapus Diceklis</button><button id="selectAllBtn" class="ghost">Ceklis Semua</button></div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <main id="masterView" class="hidden">
+    <section class="card master-card">
+      <div class="card-title">
+        <div><h2>Master Produk</h2><p>Tambah, edit, aktif/nonaktif, hapus, import Excel, export Excel.</p></div>
+        <div class="top-actions">
+          <label class="file-btn primary">Import Excel Produk<input id="excelInput" type="file" accept=".xlsx,.xls"></label>
+          <button id="exportProductsBtn" class="ghost">Export Produk Excel</button>
+        </div>
+      </div>
+
+      <div class="master-grid">
+        <div class="product-form">
+          <h3 id="formTitle">Tambah Produk</h3>
+          <input id="productId" type="hidden">
+          <label>SKU / Kode Produk<input id="formSku" type="text" placeholder="Dibuat otomatis" readonly></label>
+          <label>Nama Produk<input id="formName" type="text" placeholder="Nama produk"></label>
+          <label>Kategori<input id="formCategory" type="text" list="productCategoryOptions" placeholder="Pilih atau ketik kategori baru"><datalist id="productCategoryOptions"></datalist></label>
+          <label>Brand<input id="formBrand" type="text" list="productBrandOptions" placeholder="Pilih atau ketik brand baru"><datalist id="productBrandOptions"></datalist></label>
+          <label>Harga Jual<input id="formPrice" type="number" min="0" step="1000" value="0"></label>
+          <label>Stok Awal<input id="formStock" type="number" min="0" step="1" value="0"></label>
+          <label>Status<select id="formActive"><option value="1">Aktif</option><option value="0">Nonaktif</option></select></label>
+          <div class="main-action">
+            <button id="saveProductBtn" class="primary">💾 Simpan Produk</button>
+            <button id="cancelEditBtn" class="ghost">Batal/Edit Baru</button>
+          </div>
+
+          <div class="quick-tools">
+            <h3>Ubah Harga Massal</h3>
+            <label>Target<select id="bulkTarget"><option value="all">Semua produk aktif</option><option value="category">Kategori tertentu</option></select></label>
+            <label>Kategori<input id="bulkCategory" type="text" placeholder="Isi jika target kategori"></label>
+            <label>Jenis Perubahan<select id="bulkType"><option value="percent_up">Naik %</option><option value="percent_down">Turun %</option><option value="amount_up">Naik nominal</option><option value="amount_down">Turun nominal</option></select></label>
+            <label>Nilai<input id="bulkValue" type="number" min="0" step="1000" value="0"></label>
+            <button id="applyBulkBtn" class="secondary">Terapkan Harga Massal</button>
+          </div>
+        </div>
+
+        <div class="product-table-wrap">
+          <div class="history-filter"><input id="masterSearch" type="text" placeholder="Cari SKU / nama / kategori..."><button id="refreshProductsBtn" class="ghost">Refresh</button></div>
+          <div class="table-scroller">
+            <table class="product-table">
+              <thead><tr><th>SKU</th><th>Nama Produk</th><th>Kategori</th><th>Harga Jual</th><th>Stok</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="masterProductRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main id="marketplaceView" class="hidden">
+    <section class="card marketplace-card">
+      <div class="card-title"><div><span class="section-label">ORDER MARKETPLACE</span><h2>Input Pesanan Marketplace</h2><p>Simpan pesanan marketplace dan kurangi stok secara otomatis.</p></div><button id="resetMarketplaceBtn" class="ghost danger">Reset Form</button></div>
+      <div class="marketplace-layout">
+        <form id="marketplaceOrderForm" class="marketplace-form">
+          <div class="marketplace-section"><h3>Informasi Marketplace</h3><div class="field-grid">
+            <label>Marketplace<select id="marketplaceSource"><option value="">Pilih marketplace</option><option>Tokopedia</option><option>Toco</option></select></label>
+            <label>No. Pesanan Marketplace<input id="marketplaceInvoice" type="text" placeholder="Contoh: 260613ABC123"></label>
+          </div></div>
+          <div class="marketplace-section"><h3>Pilih Produk Pesanan</h3><p>Pilih kategori, brand, lalu produk. Hanya produk dengan stok tersedia yang ditampilkan.</p><div class="marketplace-product-filters"><label>Kategori<select id="marketplaceCategory"><option value="">Pilih kategori</option></select></label><label>Brand<select id="marketplaceBrand"><option value="">Pilih brand</option></select></label><label class="full">Produk<select id="marketplaceProductChoice"><option value="">Pilih produk</option></select></label></div><button id="addMarketplaceChoiceBtn" type="button" class="secondary marketplace-add-choice">Tambah Produk Terpilih</button><div class="search-divider"><span>atau cari cepat</span></div><input id="marketplaceProductSearch" type="text" placeholder="Cari SKU atau nama produk..."><div id="marketplaceProductResults" class="marketplace-product-results"><div class="stock-search-hint">Pilih produk di atas, atau ketik minimal 2 karakter.</div></div></div>
+          <div class="marketplace-section"><div class="marketplace-cart-heading"><div><h3>Produk Pesanan</h3><p>Produk pada order marketplace akan masuk ke omzet penjualan.</p></div><span id="marketplaceItemCount">0 item</span></div><div id="marketplaceCart" class="marketplace-cart empty">Belum ada produk.</div></div>
+          <div class="marketplace-totals"><div><span>Subtotal Produk</span><strong id="marketplaceSubtotal">Rp0</strong></div><div><span>Total Order</span><strong id="marketplaceTotal">Rp0</strong></div></div>
+          <label>Catatan<textarea id="marketplaceNotes" rows="2" placeholder="Catatan tambahan untuk pesanan"></textarea></label>
+          <button id="saveMarketplaceOrderBtn" type="submit" class="primary marketplace-save-btn">Simpan Order Marketplace</button>
+        </form>
+        <aside class="marketplace-guide"><span class="section-label">ALUR PESANAN</span><h3>Satu input, semua data sinkron</h3><div class="update-help-list"><div><strong>1</strong><span>Masukkan informasi dari marketplace.</span></div><div><strong>2</strong><span>Pilih produk sesuai pesanan customer.</span></div><div><strong>3</strong><span>Simpan untuk mengurangi stok dan memperbarui dashboard.</span></div></div></aside>
+      </div>
+    </section>
+  </main>
+
+  <main id="databaseView" class="hidden">
+    <section class="card database-card">
+      <div class="card-title"><div><span class="section-label">DATABASE OPERASIONAL</span><h2>Stok & Pelanggan</h2><p>Kelola persediaan, pantau mutasi, dan lihat data pelanggan.</p></div><button id="refreshDatabaseBtn" class="ghost">Refresh Data</button></div>
+      <div class="database-tabs">
+        <button class="database-tab primary" data-db-tab="stock">Info Stok</button>
+        <button class="database-tab ghost" data-db-tab="mutation">Mutasi Stok</button>
+        <button class="database-tab ghost" data-db-tab="customers">Data Pelanggan</button>
+        <button class="database-tab ghost" data-db-tab="update">Update Stok</button>
+        <button class="database-tab ghost" data-db-tab="bonus">Update Bonus</button>
+      </div>
+
+      <section id="dbStockPanel" class="database-panel">
+        <div id="stockCategoryCards" class="category-summary"></div>
+        <div class="database-toolbar">
+          <input id="stockSearch" type="text" placeholder="Cari SKU, produk, brand...">
+          <select id="stockCategoryFilter"><option value="">Semua Kategori</option></select>
+          <select id="stockBrandFilter"><option value="">Pilih Brand</option></select>
+          <select id="stockStatusFilter">
+            <option value="">Semua Status Stok</option>
+            <option value="active">Stok Aktif (> 0)</option>
+            <option value="inactive">Stok Nonaktif (= 0)</option>
+          </select>
+        </div>
+        <div class="stock-status-note"><span class="status-on">Stok Aktif</span> berarti jumlah stok lebih dari 0. <span class="status-off">Stok Nonaktif</span> berarti stok 0.</div>
+        <div id="stockBrandGroups" class="stock-brand-groups"></div>
+      </section>
+
+      <section id="dbMutationPanel" class="database-panel hidden">
+        <div class="database-toolbar"><input id="mutationSearch" type="text" placeholder="Cari SKU, jenis, referensi..."><span id="mutationCount" class="database-count">0 mutasi</span></div>
+        <div class="table-scroller database-table-scroll"><table class="product-table database-table"><thead><tr><th>Tanggal</th><th>SKU</th><th>Jenis</th><th>Qty</th><th>Referensi</th><th>Keterangan</th></tr></thead><tbody id="mutationRows"></tbody></table></div>
+      </section>
+
+      <section id="dbCustomersPanel" class="database-panel hidden">
+        <div class="database-toolbar"><input id="customerSearch" type="text" placeholder="Cari nama, WhatsApp, alamat..."><span id="customerCount" class="database-count">0 pelanggan</span></div>
+        <div class="table-scroller database-table-scroll"><table class="product-table database-table"><thead><tr><th>Nama Customer</th><th>No WhatsApp</th><th>Alamat</th><th>Order Terakhir</th></tr></thead><tbody id="customerRows"></tbody></table></div>
+      </section>
+
+      <section id="dbUpdatePanel" class="database-panel hidden">
+        <div class="stock-update-layout">
+          <form id="stockUpdateForm" class="stock-update-form">
+            <div class="stock-update-title"><span class="section-label">UPDATE STOK MASUK</span><h3>Tambah Persediaan Produk</h3><p>Ikuti tiga langkah singkat berikut.</p></div>
+            <div class="stock-update-step">
+              <div class="step-number">1</div>
+              <div class="step-content"><h3>Pilih Produk</h3><p>Pilih berdasarkan kategori dan brand, atau gunakan pencarian cepat.</p><div class="stock-product-filters"><label>Kategori<select id="stockUpdateCategory"><option value="">Pilih kategori</option></select></label><label>Brand<select id="stockUpdateBrand"><option value="">Pilih brand</option></select></label><label class="full">Produk<select id="stockUpdateProductChoice"><option value="">Pilih produk</option></select></label></div><div class="search-divider"><span>atau cari cepat</span></div><input id="stockProductSearch" type="text" placeholder="Ketik SKU atau nama produk..."><input id="stockProductSelect" type="hidden"><div id="stockProductResults" class="stock-product-results"><div class="stock-search-hint">Pilih kategori dan brand, atau mulai mengetik untuk mencari.</div></div></div>
+            </div>
+            <div id="selectedStockInfo" class="selected-stock-info">Pilih produk untuk melihat stok saat ini.</div>
+            <div class="stock-update-step">
+              <div class="step-number">2</div>
+              <div class="step-content"><h3>Masukkan Jumlah</h3><p>Jumlah ini akan ditambahkan ke stok saat ini.</p><label>Jumlah Stok Masuk<input id="stockUpdateQty" type="number" min="1" step="1" value="1"></label><div class="qty-shortcuts"><button type="button" data-stock-qty="1">+1</button><button type="button" data-stock-qty="5">+5</button><button type="button" data-stock-qty="10">+10</button><button type="button" data-stock-qty="25">+25</button></div><div id="stockUpdatePreview" class="stock-update-preview">Stok setelah update: -</div></div>
+            </div>
+            <div class="stock-update-step optional-step">
+              <div class="step-number">3</div>
+              <div class="step-content"><h3>Catatan Opsional</h3><p>Gunakan untuk nomor pembelian atau informasi pemasok.</p><label>Referensi<input id="stockUpdateReference" type="text" placeholder="Contoh: PO-2026-001"></label><label>Keterangan<textarea id="stockUpdateNote" rows="2" placeholder="Contoh: Stok masuk dari supplier"></textarea></label></div>
+            </div>
+            <button id="submitStockUpdateBtn" type="submit" class="primary stock-submit-btn">Simpan Penambahan Stok</button>
+          </form>
+          <div class="stock-update-help"><span class="section-label">YANG AKAN TERJADI</span><h3>Stok diperbarui otomatis</h3><div class="update-help-list"><div><strong>1</strong><span>Stok produk bertambah sesuai jumlah yang dimasukkan.</span></div><div><strong>2</strong><span>Perubahan dicatat sebagai mutasi stok masuk.</span></div><div><strong>3</strong><span>Dashboard dan info stok langsung dimuat ulang.</span></div></div></div>
+        </div>
+      </section>
+
+      <section id="dbBonusPanel" class="database-panel hidden">
+        <div class="bonus-summary-card"><div><span>Total Nominal Bonus Bulan Ini</span><strong id="bonusMonthlyValue">Rp0</strong><small id="bonusMonthlyLabel">0 produk bonus</small></div><p>Dihitung dari jumlah bonus × harga jual produk. Nilai ini tidak masuk omzet penjualan.</p></div>
+        <div class="bonus-layout">
+          <form id="bonusForm" class="bonus-form">
+            <div class="stock-update-title"><span class="section-label">UPDATE BONUS</span><h3>Catat Produk Bonus</h3><p>Produk bonus hanya mengurangi stok dan tidak membuat order baru.</p></div>
+            <div class="bonus-step"><div class="step-number">1</div><div class="step-content"><h3>Pilih Produk Bonus</h3><p>Pilih kategori, brand, lalu produk seperti pada Order Marketplace.</p><div class="marketplace-product-filters"><label>Kategori<select id="bonusCategory"><option value="">Pilih kategori</option></select></label><label>Brand<select id="bonusBrand"><option value="">Pilih brand</option></select></label><label class="full">Produk<select id="bonusProduct"><option value="">Pilih produk</option></select></label></div><button id="addBonusChoiceBtn" type="button" class="secondary marketplace-add-choice">Tambah Produk Bonus</button><div class="search-divider"><span>atau cari cepat</span></div><input id="bonusProductSearch" type="text" placeholder="Cari SKU atau nama produk..."><div id="bonusProductResults" class="marketplace-product-results"><div class="stock-search-hint">Pilih produk di atas, atau ketik minimal 2 karakter.</div></div></div></div>
+            <div class="bonus-step"><div class="step-number">2</div><div class="step-content"><div class="marketplace-cart-heading"><h3>Daftar Produk Bonus</h3><span id="bonusItemCount">0 item</span></div><div id="bonusCart" class="marketplace-cart empty">Belum ada produk bonus.</div><div class="bonus-current-total"><span>Nilai Bonus Saat Ini</span><strong id="bonusCurrentValue">Rp0</strong></div></div></div>
+            <div class="bonus-step"><div class="step-number">3</div><div class="step-content"><h3>Referensi Bonus</h3><label>Referensi<input id="bonusReference" type="text" placeholder="Contoh: Tokopedia - INV123"></label><label>Keterangan<textarea id="bonusNote" rows="3" placeholder="Contoh: Pelanggan pembelian besar"></textarea></label></div></div>
+            <div class="main-action"><button id="saveBonusBtn" type="submit" class="primary">Simpan Bonus & Kurangi Stok</button><button id="resetBonusBtn" type="button" class="ghost danger">Reset Form</button></div>
+          </form>
+          <aside class="bonus-guide"><span class="section-label">PENTING</span><h3>Bonus bukan penjualan</h3><div class="update-help-list"><div><strong>1</strong><span>Tidak membuat order baru.</span></div><div><strong>2</strong><span>Tidak menambah omzet.</span></div><div><strong>3</strong><span>Stok berkurang dan tercatat sebagai mutasi Bonus.</span></div></div></aside>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="printBatch" class="print-batch"></div>
+</div>
+
+<script src="database/produk-awal.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
