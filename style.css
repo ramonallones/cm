@@ -102,7 +102,8 @@ button:active{transform:scale(.98)}
 /* Clean mobile app navigation */
 @media(max-width:700px){
   :root{--nav-height:78px}
-  .topbar{display:flex;flex-direction:row;align-items:center;min-height:62px}
+  .topbar{display:contents}
+  .app-identity{display:none}
   .top-actions{
     grid-template-columns:repeat(5,1fr);
     padding:6px 7px;
@@ -142,27 +143,10 @@ button:active{transform:scale(.98)}
   #tabMasterBtn:before{content:"\25C7"}
   #tabMasterBtn:after{content:"Produk"}
   #logoutBtn{
-    position:fixed;
-    z-index:60;
-    top:calc(10px + env(safe-area-inset-top));
-    right:12px;
-    bottom:auto;
-    width:40px;
-    min-width:40px;
-    height:40px;
-    min-height:40px;
-    padding:0;
-    border:1px solid #453039;
-    border-radius:50%;
-    background:#1b2029;
-    color:var(--danger);
-    box-shadow:none;
+    display:none;
   }
-  #logoutBtn:before{content:"\21AA";font-size:19px}
-  #logoutBtn:after{display:none}
-  .app-identity{padding-right:50px}
 
-  main{padding-bottom:4px}
+  main{padding-top:12px;padding-bottom:4px}
   .card,.dashboard-card,.database-card,.marketplace-card,.bonus-card{
     background:#171a21;
     border-color:#252b37;
